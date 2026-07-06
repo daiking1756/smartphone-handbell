@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>スマホハンドベル</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <section id="select-screen" class="screen active">
+    <h1>スマホハンドベル</h1>
+    <p class="lead">音階を選んでください</p>
+    <div class="note-grid">
+      <button class="note-btn" data-note="低ソ" data-freq="196.00">低ソ</button>
+      <button class="note-btn" data-note="低ラ" data-freq="220.00">低ラ</button>
+      <button class="note-btn" data-note="低シ" data-freq="246.94">低シ</button>
+      <button class="note-btn" data-note="ド" data-freq="261.63">ド</button>
+      <button class="note-btn" data-note="レ" data-freq="293.66">レ</button>
+      <button class="note-btn" data-note="ミ" data-freq="329.63">ミ</button>
+      <button class="note-btn" data-note="ファ" data-freq="349.23">ファ</button>
+      <button class="note-btn" data-note="ソ" data-freq="392.00">ソ</button>
+      <button class="note-btn" data-note="ラ" data-freq="440.00">ラ</button>
+      <button class="note-btn" data-note="シ" data-freq="493.88">シ</button>
+      <button class="note-btn" data-note="高ド" data-freq="523.25">高ド</button>
+      <button class="note-btn" data-note="高レ" data-freq="587.33">高レ</button>
+      <button class="note-btn" data-note="高ミ" data-freq="659.25">高ミ</button>
+      <button class="note-btn" data-note="高ファ" data-freq="698.46">高ファ</button>
+      <button class="note-btn" data-note="高ソ" data-freq="783.99">高ソ</button>
+    </div>
+  </section>
+
+  <section id="play-screen" class="screen">
+    <button id="back-btn">&larr; 音階を選び直す</button>
+    <div class="bell-area">
+      <div id="bell-visual">🔔</div>
+      <h2 id="current-note-label">ド</h2>
+      <p class="lead">スマホを振ってください</p>
+      <p id="status" class="status"></p>
+    </div>
+  </section>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>
