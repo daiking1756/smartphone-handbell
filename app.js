@@ -5,6 +5,8 @@
   const bellVisual = document.getElementById('bell-visual');
   const noteLabel = document.getElementById('current-note-label');
   const statusEl = document.getElementById('status');
+  const canvas = document.getElementById('particle-canvas');
+  const ctx2d = canvas.getContext('2d');
 
   let audioCtx = null;
   let currentFreq = 261.63;
@@ -69,6 +71,7 @@
     click.start(now);
 
     triggerSwing();
+    spawnStars();
   }
 
   function triggerSwing() {
@@ -76,6 +79,81 @@
     // Force reflow so the animation restarts even on rapid repeated shakes.
     void bellVisual.offsetWidth;
     bellVisual.classList.add('swing');
+  }
+
+  // --- Star particles (Tanabata-style sparkle on each ring) ---
+  const STAR_COLORS = ['#fff9d6', '#ffe9a8', '#bfe3ff', '#ffffff'];
+  let particles = [];
+  let particleLoopRunning = false;
+
+  function resizeCanvas() {
+    canvas.width = canvas.clientWidth * window.devicePixelRatio;
+    canvas.height = canvas.clientHeight * window.devicePixelRatio;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function drawStar(x, y, radius, rotation, alpha, color) {
+    ctx2d.save();
+    ctx2d.translate(x, y);
+    ctx2d.rotate(rotation);
+    ctx2d.globalAlpha = alpha;
+    ctx2d.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const outerAngle = (i / 5) * Math.PI * 2;
+      const innerAngle = outerAngle + Math.PI / 5;
+      const ox = Math.cos(outerAngle) * radius;
+      const oy = Math.sin(outerAngle) * radius;
+      const ix = Math.cos(innerAngle) * radius * 0.45;
+      const iy = Math.sin(innerAngle) * radius * 0.45;
+      if (i === 0) {
+        ctx2d.moveTo(ox, oy);
+      } else {
+        ctx2d.lineTo(ox, oy);
+      }
+      ctx2d.lineTo(ix, iy);
+    }
+    ctx2d.closePath();
+    ctx2d.fillStyle = color;
+    ctx2d.shadowColor = color;
+    ctx2d.shadowBlur = radius;
+    ctx2d.fill();
+    ctx2d.restore();
+  }
+
+  function spawnStars() {
+    const dpr = window.devicePixelRatio;
+    const count = 14 + Math.floor(Math.random() * 8);
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: (6 + Math.random() * 10) * dpr,
+        rotation: Math.random() * Math.PI * 2,
+        alpha: 1,
+        decay: 0.012 + Math.random() * 0.02,
+        color: STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)],
+      });
+    }
+    if (!particleLoopRunning) {
+      particleLoopRunning = true;
+      requestAnimationFrame(runParticleLoop);
+    }
+  }
+
+  function runParticleLoop() {
+    ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.alpha -= p.decay;
+      drawStar(p.x, p.y, p.radius, p.rotation, Math.max(p.alpha, 0), p.color);
+    });
+    particles = particles.filter(p => p.alpha > 0);
+
+    if (particles.length > 0) {
+      requestAnimationFrame(runParticleLoop);
+    } else {
+      particleLoopRunning = false;
+    }
   }
 
   function showScreen(screen) {
@@ -142,6 +220,7 @@
       getAudioContext(); // create/resume AudioContext within this user gesture
       enableMotion();
       showScreen(playScreen);
+      resizeCanvas(); // play-screen was display:none, so clientWidth/Height were 0 until now
     });
   });
 
