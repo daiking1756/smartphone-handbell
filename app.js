@@ -174,7 +174,8 @@
     if (lastAccel) {
       const delta = Math.abs(a.x - lastAccel.x) + Math.abs(a.y - lastAccel.y) + Math.abs(a.z - lastAccel.z);
       const now = Date.now();
-      if (delta > SHAKE_THRESHOLD && now - lastShakeTime > SHAKE_COOLDOWN_MS) {
+      const isPlaying = playScreen.classList.contains('active');
+      if (isPlaying && delta > SHAKE_THRESHOLD && now - lastShakeTime > SHAKE_COOLDOWN_MS) {
         lastShakeTime = now;
         ringBell(currentFreq);
       }
