@@ -162,10 +162,14 @@
   }
 
   // --- Shake detection ---
+  // Hysteresis instead of a fixed cooldown: once a shake fires, delta must drop
+  // back below SHAKE_RESET_THRESHOLD before another shake can re-arm the trigger.
+  // This lets fast, distinct shakes ring in quick succession while still
+  // ignoring the multiple threshold-crossings within a single swing.
   let lastAccel = null;
-  let lastShakeTime = 0;
+  let shakeArmed = true;
   const SHAKE_THRESHOLD = 14; // m/s^2 change between samples
-  const SHAKE_COOLDOWN_MS = 400;
+  const SHAKE_RESET_THRESHOLD = 6;
 
   function handleMotion(event) {
     const a = event.accelerationIncludingGravity || event.acceleration;
@@ -173,11 +177,14 @@
 
     if (lastAccel) {
       const delta = Math.abs(a.x - lastAccel.x) + Math.abs(a.y - lastAccel.y) + Math.abs(a.z - lastAccel.z);
-      const now = Date.now();
       const isPlaying = playScreen.classList.contains('active');
-      if (isPlaying && delta > SHAKE_THRESHOLD && now - lastShakeTime > SHAKE_COOLDOWN_MS) {
-        lastShakeTime = now;
-        ringBell(currentFreq);
+      if (isPlaying) {
+        if (shakeArmed && delta > SHAKE_THRESHOLD) {
+          shakeArmed = false;
+          ringBell(currentFreq);
+        } else if (!shakeArmed && delta < SHAKE_RESET_THRESHOLD) {
+          shakeArmed = true;
+        }
       }
     }
     lastAccel = { x: a.x, y: a.y, z: a.z };
